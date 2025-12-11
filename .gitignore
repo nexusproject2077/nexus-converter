@@ -1,0 +1,47 @@
+# Node.js
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Logs
+logs
+*.log
+
+# Environnement variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS / Éditeurs
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Build / Cache
+dist/
+build/
+.tmp/
+.temp/
+
+# Téléchargements temporaires (si tu testes localement)
+downloads/
+temp/
+
+# Backend spécifique
+backend/node_modules/
+backend/npm-debug.log
+
+# Frontend spécifique (si tu ajoutes un build plus tard)
+frontend/node_modules/
+frontend/dist/
+
+# GitHub Pages cache (inutile)
+.gitignore~
