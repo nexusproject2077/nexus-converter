@@ -1,26 +1,30 @@
-# Image de base Node.js légère (Alpine pour rapidité)
+# Image de base Node.js légère
 FROM node:18-alpine
 
-# Installe Python, pip, ffmpeg et git (requis pour yt-dlp)
-RUN apk add --no-cache python3 py3-pip ffmpeg git
+# Installe les dépendances système nécessaires
+RUN apk add --no-cache python3 py3-pip ffmpeg git curl
 
-# Crée un lien pour python (parfois nécessaire)
-RUN ln -sf python3 /usr/bin/python
+# Crée les liens pour python et pip (essentiel sur Alpine)
+RUN ln -sf /usr/bin/python3 /usr/bin/python
+RUN ln -sf /usr/bin/pip3 /usr/bin/pip
 
-# Installe yt-dlp directement via pip (plus fiable que le wrapper)
-RUN pip3 install --no-cache-dir yt-dlp
+# Installe yt-dlp via pip dans /usr/local/bin (PATH par défaut)
+RUN pip install --no-cache-dir --upgrade yt-dlp
 
-# Définit le dossier de travail
+# Vérifie que yt-dlp est bien installé et accessible
+RUN yt-dlp --version && which yt-dlp
+
+# Dossier de travail
 WORKDIR /app
 
-# Copie les fichiers package et installe les dépendances Node
+# Copie et installe les dépendances Node
 COPY package*.json ./
 RUN npm ci --only=production
 
-# Copie le reste du code backend
+# Copie le code
 COPY . .
 
-# Expose le port (Render utilise $PORT, mais on met 3000 par défaut)
+# Expose le port
 EXPOSE 3000
 
 # Lance le serveur
