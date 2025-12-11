@@ -1,26 +1,26 @@
 {
   "name": "nexus-converter-backend",
   "version": "1.0.0",
-  "description": "Backend pour Nexus Converter - Téléchargement rapide de vidéos et audios (YouTube, TikTok, Instagram, etc.) avec style futuriste",
+  "description": "Backend pour Nexus Converter - Téléchargeur rapide de vidéos et audios avec yt-dlp natif (YouTube, TikTok, Instagram, etc.)",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js"
   },
   "keywords": [
-    "youtube-dl",
     "yt-dlp",
     "video-downloader",
     "audio-converter",
     "express",
-    "nexus-converter"
+    "nexus-converter",
+    "render",
+    "docker"
   ],
   "author": "nexusproject2077",
   "license": "MIT",
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^4.19.2",
-    "yt-dlp-wrap": "^2.3.0"
+    "express": "^4.19.2"
   },
   "engines": {
     "node": ">=18.x"
