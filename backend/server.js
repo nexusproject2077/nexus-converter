@@ -1,15 +1,16 @@
 const express = require('express');
-const YTDlpWrap = require('yt-dlp-wrap').default;
+const { exec } = require('child_process');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
-const ytDlp = new YTDlpWrap();
+const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
 
-// Servir le frontend statique (le dossier ../frontend)
+// Sert le frontend statique
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 // Endpoint de téléchargement
@@ -21,33 +22,49 @@ app.get('/download', async (req, res) => {
     }
 
     try {
-        const metadata = await ytDlp.execPromise([url, '--dump-json']);
-        const info = JSON.parse(metadata);
-        const safeTitle = (info.title || 'nexus-file').replace(/[^a-zA-Z0-9]/g, '_');
-        const ext = format === 'video' ? 'mp4' : 'mp3';
+        // Récupère les métadonnées pour le titre
+        const metadataCmd = `yt-dlp --dump-json --no-download "${url}"`;
+        exec(metadataCmd, (err, stdout) => {
+            if (err) throw err;
+            const info = JSON.parse(stdout);
+            const safeTitle = (info.title || 'nexus-file').replace(/[^a-zA-Z0-9]/g, '_');
+            const ext = format === 'video' ? 'mp4' : 'mp3';
 
-        res.setHeader('Content-Disposition', `attachment; filename="${safeTitle}.${ext}"`);
-        res.setHeader('Content-Type', format === 'video' ? 'video/mp4' : 'audio/mpeg');
+            // Headers pour téléchargement direct
+            res.setHeader('Content-Disposition', `attachment; filename="${safeTitle}.${ext}"`);
+            res.setHeader('Content-Type', format === 'video' ? 'video/mp4' : 'audio/mpeg');
 
-        let args = [url];
-        if (format === 'video') {
-            args.push('-f', 'bestvideo+bestaudio/best');
-            args.push('--merge-output-format', 'mp4');
-        } else {
-            args.push('-f', 'bestaudio');
-            args.push('--extract-audio', '--audio-format', 'mp3');
-        }
-        args.push('-o', '-');
+            // Commande yt-dlp avec flags anti-bot (user-agent réaliste, rate limit)
+            let args = [
+                url,
+                '--no-check-certificate',  // Évite erreurs SSL
+                '--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',  // Simule un navigateur
+                '--sleep-interval', '1',   // Pause anti-rate-limit
+                '--max-sleep-interval', '5',
+                '--socket-timeout', '10',
+                '-o', '-'  // Sortie sur stdout pour streaming
+            ];
 
-        const ytDlpProcess = ytDlp.exec(args);
-        ytDlpProcess.stdout.pipe(res);
+            if (format === 'video') {
+                args.push('-f', 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]');
+                args.push('--merge-output-format', 'mp4');
+            } else {
+                args.push('-f', 'bestaudio[ext=m4a]');
+                args.push('--extract-audio', '--audio-format', 'mp3', '--audio-quality', '192K');
+            }
 
-        ytDlpProcess.on('error', (err) => {
-            console.error('Erreur yt-dlp:', err);
-            if (!res.headersSent) res.status(500).send('Erreur de traitement');
+            const ytCmd = `yt-dlp ${args.join(' ')}`;
+
+            const process = exec(ytCmd);
+            process.stdout.pipe(res);
+
+            process.on('error', (err) => {
+                console.error('Erreur yt-dlp:', err);
+                if (!res.headersSent) res.status(500).send('Erreur de traitement (bot detection ? Essayez une autre URL)');
+            });
+
+            req.on('close', () => process.kill());
         });
-
-        req.on('close', () => ytDlpProcess.kill());
 
     } catch (err) {
         console.error(err);
@@ -55,12 +72,11 @@ app.get('/download', async (req, res) => {
     }
 });
 
-// Route pour toutes les autres pages → renvoyer index.html
+// Route catch-all pour le frontend
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend', 'index.html'));
 });
 
-const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`🚀 Backend Nexus Converter lancé sur http://localhost:${PORT}`);
+    console.log(`🚀 Nexus Converter lancé sur http://0.0.0.0:${PORT}`);
 });
