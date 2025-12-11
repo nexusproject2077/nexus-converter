@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
         progressBar.style.width = '0';
 
         // URL du backend (change si ton serveur est ailleurs)
-        const backendUrl = `http://localhost:3000/download?url=${encodeURIComponent(url)}&format=${format}`;
+        const backendUrl = `${window.location.origin}/download?url=${encodeURIComponent(url)}&format=${format}`;
 
         // Créer un lien invisible pour déclencher le téléchargement direct
         const link = document.createElement('a');
