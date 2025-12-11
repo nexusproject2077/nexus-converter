@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Converter</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="overlay"></div>
+    
+    <header>
+        <h1 id="site-name">Nexus Converter</h1>
+        <p id="live-time"></p>
+    </header>
+
+    <main>
+        <input type="text" id="url-input" placeholder="Entrez l'URL de la vidéo ou de l'audio...">
+        
+        <select id="format-select">
+            <option value="video">Vidéo (MP4)</option>
+            <option value="audio">Audio (MP3)</option>
+        </select>
+        
+        <button id="convert-btn">Convertir et Télécharger</button>
+        
+        <div id="progress">
+            <div id="progress-bar"></div>
+        </div>
+        
+        <div id="status-message"></div>
+    </main>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
