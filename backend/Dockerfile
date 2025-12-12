@@ -1,13 +1,15 @@
+# Version qui marche sur Render Free en 2025
 FROM node:18-alpine
 
-# Installe seulement ffmpeg (le seul vrai besoin)
-RUN apk add --no-cache ffmpeg curl
+# Installe ffmpeg (seulement ça)
+RUN apk add --no-cache ffmpeg
 
-# Télécharge le binaire yt-dlp standalone (aucune dépendance Python)
-RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp \
-    && chmod +x /usr/local/bin/yt-dlp
+# Télécharge yt-dlp directement dans le dossier courant et le renomme en "yt-dlp"
+RUN wget -O yt-dlp https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp \
+    && chmod +x yt-dlp \
+    && mv yt-dlp /usr/local/bin/
 
-# Vérifie que ça marche
+# Vérifie que c’est bon (tu verras ça dans les logs de build)
 RUN yt-dlp --version
 
 WORKDIR /app
