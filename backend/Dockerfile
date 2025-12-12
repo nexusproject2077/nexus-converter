@@ -1,22 +1,27 @@
 FROM node:18-alpine
 
-RUN apk add --no-cache ffmpeg wget
+# Installe ffmpeg (obligatoire pour merger vidéo + audio)
+RUN apk add --no-cache ffmpeg
 
-# Télécharge yt-dlp et le met dans /app (WORKDIR)
+# Télécharge yt-dlp standalone (sans Python, sans PATH problems)
 RUN wget -O yt-dlp https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp \
     && chmod +x yt-dlp
 
-# Ajoute au PATH
-ENV PATH="/app:${PATH}"
-
-# Vérifie
+# Vérifie que ça marche (tu verras la version dans les logs Render)
 RUN ./yt-dlp --version
 
 WORKDIR /app
-COPY yt-dlp ./
+
+# Installe Node.js deps
 COPY package*.json ./
 RUN npm ci --only=production
+
+# Copie tout le code
 COPY . .
 
+# Copie yt-dlp dans le dossier final (appel relatif)
+COPY yt-dlp .
+
 EXPOSE 3000
+
 CMD ["npm", "start"]
