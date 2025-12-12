@@ -38,7 +38,7 @@ app.get('/download', (req, res) => {
         args.push('-x', '--audio-format', 'mp3', '--audio-quality', '0');
     }
 
-    const ytCmd = `./yt-dlp ${args.join(' ')}`;
+    const ytCmd = `./yt-dlp ${args.map(arg => `"${arg}"`).join(' ')}`;
     const process = exec(ytCmd);
 
     process.stdout.pipe(res);
