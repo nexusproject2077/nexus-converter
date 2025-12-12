@@ -14,7 +14,7 @@ app.get('/download', (req, res) => {
     }
 
     const ext = format === 'video' ? 'mp4' : 'mp3';
-    res.setHeader('Content-Disposition', `attachment; filename="nexus-download.${ext}"`);
+    res.setHeader('Content-Disposition', `attachment; filename="${new URL(url).searchParams.get('v') || 'nexus'}.${ext}"`);
     res.setHeader('Content-Type', format === 'video' ? 'video/mp4' : 'audio/mpeg');
 
     let args = [
